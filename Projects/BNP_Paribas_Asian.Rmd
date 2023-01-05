@@ -27,15 +27,18 @@ Zakładając, że zmienna losowa $X$ ma rozkład logarytmiczno-normalny, tj. $\l
 
 ```{r}
 expected_LogNormal = function(m,s) { # EX
-
+return(exp(m+(s^2)/2))
 }
 
 expected_LogNormal_greater = function(m,s,k) { # E(X; X>k) = E( X 1_{X>k} )
-
+A=(m+(s^2)-log(k))/s
+B=(log(k)-m)/(s)
+return(exp(m+(s^2)/2)*(pnorm(A)/(1-pnorm(B))))
 }
 
 p_LogNormal = function(x,m,s) { # F_X(x) = P(X ≤ x)
-
+C=((log(x)-m)/s)
+return(pnorm(C))
 }
 
 call_option_on_LogNormal = function(m,s,k) { # E(X-K)_+ = ...
