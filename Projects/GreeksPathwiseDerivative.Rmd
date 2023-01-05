@@ -5,9 +5,8 @@ output:
   html_document: default
 date: "`r Sys.Date()`"
 ---
-ghjg
 # Wstęp
-
+  vg
 Projekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Prezentujemy metodę różniczkowania wzdłuż ścieżek, dla wyznaczania pochodnych cząstkowych funkcji ceny opcji, opisaną w [1], w rozdziale 7.2 pt. "Pathwise Derivative Estimates".
 
 Załóżmy, że mamy estymator $Y$ ceny opcji. Oprócz zależności zmiennej losowej $Y$ od $\omega\in\Omega$, mamy również zależność od parametrów występujących w modelu, np. od ceny startowej $S_0$ (która może być wektorem, jeśli opcja zależy od kilku aktywów), zmienności rynku $\sigma$, stopy procentowej $r$, terminu $T$.
