@@ -1,3 +1,6 @@
+
+
+
 ---
 title: "Kontrakty terminowe - ćwiczenia/projekt"
 output:
