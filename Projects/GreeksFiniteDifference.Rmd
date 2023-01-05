@@ -1,3 +1,4 @@
+
 ---
 title: "Współczynniki greckie i różnice skończone"
 output: html_document
