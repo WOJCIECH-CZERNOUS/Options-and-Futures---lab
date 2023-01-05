@@ -8,7 +8,7 @@ date: "`r Sys.Date()`"
 
 # Wstęp
 
-Projekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Przedstawiamy przykłady numeryczne dla algorytmów wyceny opcji amerykańskich, opisanych w [1], w rozdziale 8.5 pt. "Stochastic Mesh Methods".
+P rojekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Przedstawiamy przykłady numeryczne dla algorytmów wyceny opcji amerykańskich, opisanych w [1], w rozdziale 8.5 pt. "Stochastic Mesh Methods".
 
 # Opcje amerykańskie - optymalne stopowanie
 
