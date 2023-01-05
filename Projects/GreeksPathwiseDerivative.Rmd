@@ -5,7 +5,7 @@ output:
   html_document: default
 date: "`r Sys.Date()`"
 ---
-
+ghjg
 # Wstęp
 
 Projekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Prezentujemy metodę różniczkowania wzdłuż ścieżek, dla wyznaczania pochodnych cząstkowych funkcji ceny opcji, opisaną w [1], w rozdziale 7.2 pt. "Pathwise Derivative Estimates".
