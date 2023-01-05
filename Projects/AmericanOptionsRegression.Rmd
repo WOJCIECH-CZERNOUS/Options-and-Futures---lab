@@ -12,6 +12,8 @@ Projekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Przedstawiamy przyk
 
 Znajdźmy wartość $V_0$ opcji w chwili $t_0=0$. Niech $h_i$ oznacza zdyskontowaną wypłatę z opcji w chwili $t_i$, zwaną też wewnętrzną wartością (*intrinsic value*) opcji. Ponieważ opcję amerykańską możemy w każdej chwili zrealizować (otrzymując $h_i$) lub czekać, jej wartość jest nie mniejsza od wartości wewnętrznej.
 
+
+
 Zdyskontowana wartość $V_i(X_i)$ opcji w chwili $t_i$ na rynku znajdującym się w stanie $X_i$ (w ogólności, $X_i$ jest wektorem zawierającym ceny instrumentów, losowe stopy procentowe $r$, poziom zmienności rynku $\sigma$, itd.), jest dana równaniem rekurencyjnym (patrz [1], równania (8.6)-(8.7)):
 
 $$
