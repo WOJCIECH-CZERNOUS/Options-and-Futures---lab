@@ -42,12 +42,13 @@ return(pnorm(C))
 }
 
 call_option_on_LogNormal = function(m,s,k) { # E(X-K)_+ = ...
-
+return((expected_LogNormal_greater(m,s,k))-(k*(1-p_LogNormal(k,m,s))))
 }
 
 put_option_on_LogNormal = function(m,s,k) { # E(K-X)_+  (używamy 'put-call parity')
-
+return((k*(1-p_LogNormal_greater(k,m,s)))-(expected_LogNormal(m,s,k)))
 }
+
 ```
 
 Parametry $m,s$ rozkładu zmiennej $X$ wyznaczamy następnie, jak w [1], ss.99-100 ("Geometric average options").
@@ -192,9 +193,7 @@ lines(t,b_const)
 
 (p. [2], str. 19, Table 2; kolumny: sigma, AP_b, AP_0)
 
-Otrzymane wyniki, dla różnych wartości sigma oraz m,n, podajemy poniżej, wraz z czasem obliczeń.
-Obliczenia dokonona zostały na komputerze ... 
-Załączamy też, dla porównania, wyniki dostępne w literaturze [2] (Table 2).
+Otrzymane wyniki, dla różnych wartości sigma oraz m,n, podajemy poniżej, wraz z czasem obliczeń. Obliczenia dokonona zostały na komputerze ... Załączamy też, dla porównania, wyniki dostępne w literaturze [2] (Table 2).
 
 ```{r}
 sigma_values = .1 * c(6,5,4,3,2)
