@@ -194,7 +194,16 @@ Wyliczenie wartości tego estymatora zilustrowane jest poniżej (z [1], Fig. 8.4
 
 ```{r}
 v_low_estimator = function(i,x) {
-
+   payoff = h(x)
+  z = exp(-r*dt) * replicate(b, v_low_estimator(i+1,sample_next(x)))
+  hat_v_ik = c()
+  for (k in 1:b) {
+    if(mean(z[-k])<payoff){
+      return(payoff)
+    } else {
+      return(mean(z))
+    }
+  }
   
 }
 print(v_low_estimator(0,S_0))
