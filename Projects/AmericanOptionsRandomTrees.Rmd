@@ -6,7 +6,6 @@ output:
 date: "`r Sys.Date()`"
 ---
 
-
 # Wstęp
 
 Projekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Przedstawiamy przykłady numeryczne dla algorytmów wyceny opcji amerykańskich, opisanych w [1], w rozdziale 8.3 pt. "Random Tree Methods".
@@ -113,7 +112,6 @@ Pomocny, w zrozumieniu definicji $\hat V_i^{j_1\cdots j_i}$, będzie przykład n
 
 ![](images/Glasserman_Fig_8.3.png)
 
-
 ```{r}
 m = 5
 b = 10
@@ -194,17 +192,21 @@ Wyliczenie wartości tego estymatora zilustrowane jest poniżej (z [1], Fig. 8.4
 
 ```{r}
 v_low_estimator = function(i,x) {
-   payoff = h(x)
-  z = exp(-r*dt) * replicate(b, v_low_estimator(i+1,sample_next(x)))
-  hat_v_ik = c()
-  for (k in 1:b) {
-    if(mean(z[-k])<payoff){
-      return(payoff)
-    } else {
-      return(mean(z))
+  payoff = h(x)
+  if (i == m) {
+    return (payoff)
+  } else {
+    z = exp(-r*dt) * replicate(b, v_low_estimator(i+1,sample_next(x)))
+    hat_v_ik = c()
+    for (k in 1:b) {
+      if(mean(z[-k])<payoff){
+        hat_v_ik[k] = payoff
+      } else {
+        hat_v_ik[k] = z[k]
+      }
     }
-  }
-  
+    return(mean(hat_v_ik))
+  }  
 }
 print(v_low_estimator(0,S_0))
 ```
@@ -212,12 +214,14 @@ print(v_low_estimator(0,S_0))
 Gdy mamy już metodę otrzymywania $\hat v_0(S_0)$, replikujemy tę funkcję $n$ razy, otrzymując pewien wektor prób $\hat v_0(S_0)$. Pozwala to następnie oszacować przedział ufności dla $E\hat v_0(S_0)$.
 
 ```{r}
-
+q = replicate(100,v_low_estimator(0,S_0))
+print(mean(q))
+print(sd(q))
 ```
 
 Wartość ceny amerykańskiej opcji sprzedaży, znaleziona w kalkulatorze online [3], dla powyższych wartości parametrów: $S_0$ (*price*), $K$ (*strike*), $\sigma$ (*volatility*), $r$ (*interest rate*), $T$ (*expiration*), to:
 
-...
+2.97
 
 # Przedziały ufności dla estymatora ceny opcji
 
@@ -249,13 +253,7 @@ E\hat V_0 \ge
 \bar V_0(n,b)-z_{\delta/2}\frac{s_V(n,b)}{\sqrt n},
 $$
 
-a każde z tych zdarzeń ma prawdopodobieństwo nie przekraczające $\delta/2$ (dla dużych $n$);
-ich alternatywa ma prawdopodobieństwo nie większe, niż $\delta$.
-Stąd $V_0(X_0)$ zawiera się w przedziale $I_\delta(n,b)$
-z prawdopodobieństwem (dla dużych $n$) przynajmniej $1-\delta$.
-
-
-
+a każde z tych zdarzeń ma prawdopodobieństwo nie przekraczające $\delta/2$ (dla dużych $n$); ich alternatywa ma prawdopodobieństwo nie większe, niż $\delta$. Stąd $V_0(X_0)$ zawiera się w przedziale $I_\delta(n,b)$ z prawdopodobieństwem (dla dużych $n$) przynajmniej $1-\delta$.
 
 # Przyspieszanie obliczeń
 
@@ -263,13 +261,34 @@ Możemy polepszyć czas działania tej metody, generując 1 zamiast b potomków 
 
 ```{r}
 V_high_estimator_faster = function(i,x) {
-  
-  
+  payoff = h(x)
+  if (i == m) {
+    return (payoff)
+  } else {
+    C = V_high_estimator(i+1,sample_next(x))
+    return (max(payoff, exp(-r*dt) * mean(C)))
+  }
 }
+print(system.time(V_high_estimator_faster(0,S_0)))
+
 v_low_estimator_faster = function(i,x) {
-  
-  
+  payoff = h(x)
+  if (i == m) {
+    return (payoff)
+  } else {
+    z = exp(-r*dt) * (v_low_estimator(i+1,sample_next(x)))
+    hat_v_ik = c()
+     {
+      if(mean(z)<payoff){
+        hat_v_ik = payoff
+      } else {
+        hat_v_ik = z
+      }
+    }
+    return(hat_v_ik)
+  }  
 }
+print(system.time(v_low_estimator_faster(0,S_0)))
 ```
 
 Czas obliczeń można zmierzyć w języku R przy użyciu funkcji
@@ -283,12 +302,21 @@ Zauważmy, że w obu powyższych estymatorach $Y$ możemy prawdopodobnie zreduko
 ```{r}
 X_high_estimator_faster_European = function(i,x) {
   
-  
+  x=c();
+for(i in 1:1000){
+  x[i]=V_high_estimator(0,S_0)
 }
+  return(barx_V=mean(x))
+}
+print(barx_V)
 X_low_estimator_faster_European = function(i,x) {
-  
-  
+    x=c();
+for(i in 1:1000){
+  x[i]=V_low_estimator(0,S_0)
 }
+  barx_v=mean(x)
+}
+print(barx_V)
 ```
 
 # Literatura:
@@ -297,4 +325,4 @@ X_low_estimator_faster_European = function(i,x) {
 
 [2] J. Jakubowski, R. Sztencel, *Wstęp do teorii prawdopodobieństwa*, Wyd. 4. SCRIPT, Warszawa, 2010
 
-[3] Kalkulator online dla wyznaczania cen opcji: ...
+[3] Kalkulator online dla wyznaczania cen opcji: <http://www.calkoo.com/pl/parytet-put-call>
