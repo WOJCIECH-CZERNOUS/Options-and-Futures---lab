@@ -6,7 +6,6 @@ output:
 date: "`r Sys.Date()`"
 ---
 # Wstęp
-  vg
 Projekt jest ćwiczeniem z wyceny opcji metodą Monte Carlo. Prezentujemy metodę różniczkowania wzdłuż ścieżek, dla wyznaczania pochodnych cząstkowych funkcji ceny opcji, opisaną w [1], w rozdziale 7.2 pt. "Pathwise Derivative Estimates".
 
 Załóżmy, że mamy estymator $Y$ ceny opcji. Oprócz zależności zmiennej losowej $Y$ od $\omega\in\Omega$, mamy również zależność od parametrów występujących w modelu, np. od ceny startowej $S_0$ (która może być wektorem, jeśli opcja zależy od kilku aktywów), zmienności rynku $\sigma$, stopy procentowej $r$, terminu $T$.
@@ -271,6 +270,87 @@ T = 1
 h = 0.01
 n = 100 # ilość trajektorii/prób ceny opcji (nazewnictwo zgodne z [1])
 
+# generowanie S_T
+call_put_mc = function() {
+  Z = rnorm(1)
+  WT = sqrt(T) * Z
+  S_T = S_0*exp((r - 0.5*sigma^2)*T + sigma*WT)
+  return(S_T)
+}
+set.seed(1)
+results = call_put_mc()
+print(results)
+
+
+# funkcja charakterystyczna
+indicator = function(S_T) {
+  if(S_T > K){
+     I = 1;
+  }else{
+    I = 0;
+  }
+  return (I)
+}
+#rozniczka dY/dS_T
+dY_dS_T1 = function(S_T) {
+  return ( exp(-r*T) * indicator(S_T)  )
+}
+dS_t_dS_01 = function(S_t) {
+  return (S_t / S_0)
+}
+# ROZNICZKA DELTA
+delta = function(S_T) {
+  dD = dY_dS_T1(S_T) * dS_t_dS_01(S_T)
+  return (dD)
+}
+results = delta(S_T)
+print(results)
+#####################
+#rozniczka dY/dS_T
+dY_dS_T2 = function(S_T) {
+  return ( exp(-r*T) * indicator(S_T)  )
+}
+dS_t_dS_02 = function(S_t) {
+  return ((S_t/sigma)*(log((S_t/S_0))-(r-sigma^2/2)*T))
+}
+# ROZNICZKA VEGA
+vega = function(S_T) {
+  dv = dY_dS_T2(S_T) * dS_t_dS_02(S_T)
+  return (dv)
+}
+results = vega(S_T)
+print(results)
+#######################
+#rozniczka dY/dS_T
+dY_dS_T3 = function(S_T) {
+  return ( exp(-r*T) * indicator(S_T)  )
+}
+dS_t_dS_03 = function(S_t) {
+  return (K*T)
+}
+# ROZNICZKA RHO
+rho = function(S_T) {
+  dr = dY_dS_T3(S_T) * dS_t_dS_03(S_T)
+  return (dr)
+}
+results = rho(S_T)
+print(results)
+######################
+#rozniczka dY/dS_T
+dY_dS_T4 = function(S_T) {
+  return ( exp(-r*T) * indicator(S_T)  )
+}
+dS_t_dS_04 = function(S_t) {
+  return (r-S_t/2*T*(log(S_t/S_0)+(r-sigma^2/2)*T + sigma*sqrt(T)))
+}
+# ROZNICZKA THETA
+theta = function(S_T) {
+  dt = dY_dS_T4(S_T) * dS_t_dS_04(S_T)
+  return (dt)
+}
+results = theta(S_T)
+print(results)
+
 
 ```
 
@@ -281,6 +361,77 @@ Wyniki porównujemy z [3], str. 276.
 Wyliczymy współczynniki: delta, vega, rho, theta, dla azjatyckich opcji kupna z uwzględnieniem dywidend.
 
 ```{r}
+# generowanie S_T dla opcji azjatyckich
+sample_trajectory_of_S = function() {
+  alpha = (r - sigma^2/2)*h
+  beta = sigma * sqrt(h)
+  S = c(S_0)
+  for (i in 1:n) {
+    Z = rnorm(1)
+    S[i+1] = S[i] * exp(alpha + beta * Z)
+  }
+  return ( S )
+}
+last_price = function(trajectory) {
+  n = length(trajectory)
+  x = trajectory[n]
+  return(x)
+}
+
+S = sample_trajectory_of_S()
+S_T = last_price(S)
+print(S)
+print(S_T)
+
+# rozniczka delta - azj.
+delta2 = function(S) {
+  barS = mean(S)
+  factor2 = c()
+  for (i in 1:n){
+    factor2[i] = dS_t_dS_01(S[i])
+  }
+  dD = dY_dS_T1(barS) * mean(factor2)
+  return (dD)
+}
+print(mean(replicate(1000, delta2(sample_trajectory_of_S()))))
+
+# rozniczka vega - azj.
+vega2 = function(S) {
+  barS = mean(S)
+  factor3 = c()
+  for (i in 1:n){
+    factor3[i] = dS_t_dS_02(S[i])
+  }
+  dv = dY_dS_T2(barS) * mean(factor3)
+  return (dv)
+}
+print(mean(replicate(1000, vega2(sample_trajectory_of_S()))))
+
+
+# rozniczka rho - azj.
+rho2 = function(S) {
+  barS = mean(S)
+  factor4 = c()
+  for (i in 1:n){
+    factor4[i] = dS_t_dS_03(S[i])
+  }
+  dv = dY_dS_T3(barS) * mean(factor4)
+  return (dv)
+}
+print(mean(replicate(1000, rho2(sample_trajectory_of_S()))))
+
+
+# rozniczka theta - azj.
+theta2 = function(S) {
+  barS = mean(S)
+  factor5 = c()
+  for (i in 1:n){
+    factor5[i] = dS_t_dS_04(S[i])
+  }
+  dv = dY_dS_T4(barS) * mean(factor5)
+  return (dv)
+}
+print(mean(replicate(1000, theta2(sample_trajectory_of_S()))))
 
 ```
 
