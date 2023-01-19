@@ -46,7 +46,7 @@ node_value_sigma = function(difference, n, Y_sample = Y_sample_European_call) {
 payoff_EC = function(S_T) {
   return ( max(0, S_T - K)  )
 }
-Y_sample_European_call = function(S_0, sigma) {
+Y_sample_European_call = function(S_0 = S_0, sigma = sigma) {
   Z = rnorm(1)
   S_T = S_0 * exp((r-sigma^2/2)*T + sigma*sqrt(T)*Z)
   return (exp(-r*T) * payoff_EC(S_T))
@@ -64,8 +64,8 @@ barYn_estimator = function(n, S_0 = 100, sigma = .3, Y_sample = Y_sample_Europea
 #
 forward_difference = function(h, n, Y_sample = Y_sample_European_call, node_value = node_value_S_0) {
   # Patrz wzór (7.1) w [1], na str. 378:
-  Y0 = barYn_estimator(n, S_0 = S_0,     Y_sample)
-  Y1 = barYn_estimator(n, S_0 = S_0 + h, Y_sample)
+  Y0 = node_value(0, n, Y_sample)
+  Y1 = node_value(h, n, Y_sample)
   finite_difference = 1/h * (Y1 - Y0)
   return ( finite_difference )
 } 
@@ -76,6 +76,8 @@ central_difference = function(h, n, Y_sample = Y_sample_European_call, node_valu
   # Patrz wzór (7.4) w [1], na str. 379:
   
 }
+# test:
+print(forward_difference(1, 100))
 ```
 
 Ponieważ jednocześnie będziemy brać $n\to\infty$ oraz $h\to 0^+$, więc spróbujmy dobrać ciąg
@@ -109,11 +111,11 @@ przy czym przypadki te są następujące. Przypadek $(i)$ zachodzi, gdy estymato
 #
 alpha_central_differences = function(h, n, Y_sample = Y_sample_European_call, node_value = node_value_S_0) {
   # Ilorazy różnicowe centralne, o dokładności rzędu h^2, patrz [3].
-  Y_2 = node_value(-2*h, n)
-  Y_1 = node_value(-1*h, n)
-  Y0  = node_value(0,    n)
-  Y1  = node_value(+1*h, n)
-  Y2  = node_value(+2*h, n)
+  Y_2 = node_value(-2*h, n, Y_sample)
+  Y_1 = node_value(-1*h, n, Y_sample)
+  Y0  = node_value(0,    n, Y_sample)
+  Y1  = node_value(+1*h, n, Y_sample)
+  Y2  = node_value(+2*h, n, Y_sample)
   d1 = (Y2 - Y_2) / (2*h)
   d2 = (Y_1 - 2*Y0 + Y1) / (h^2)
   d3 = (-Y_2/2 + Y_1 - Y1 + Y2/2) / h^3
