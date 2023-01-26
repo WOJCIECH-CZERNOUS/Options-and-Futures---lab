@@ -277,6 +277,82 @@ Rysunek 7.4 z [1], zamieszczony poniżej, pokazuje wartości wariancji tego esty
 
 Wyniki te porównamy z naszą implementacją metody mieszanej.
 
+
+```{r}
+#Parametry:
+S_0 <- 100
+K <- 100
+r <- .05
+sigma <- .30
+T <- 0.25
+h <- 0.01
+n <- 100
+```
+
+```{r}
+# Funkcja charakterystyczna 1:
+Ind = function(S, K, epsilon) {
+  if ( abs(S-K) < epsilon ){
+    result = 1
+    }
+    else {
+      result = 0
+    }
+  return(result)
+  }
+```
+
+```{r}
+# Funkcja charakterystyczna 2:
+Indh = function(S, K) {
+  if ( S > K ){
+    result = 1
+    }
+    else {
+      result = 0
+    }
+  return(result)
+  }
+```
+
+
+```{r}
+# Funkcja obliczająca współczynnik grecki delta:
+delta = function(S_0, sigma, T, r, K, h, epsilon) {
+  
+  Z=rnorm(1)
+  S_T = S_0 * exp((r - 0.5*sigma^2) * T + sigma * sqrt(T) * Z)
+  
+      licz = log(S_T/S_0) - (r - 0.5 * sigma^2) * T
+      mian = sigma * sqrt(T)
+      ksi = licz/mian
+  
+  f = (1/(2*epsilon)) * Ind(S_T, K, epsilon) * S_T/S_0
+  
+  fepsi = min(1, max(0,S_T - K + epsilon) / (2*epsilon))
+  
+  h = (Indh(S_T, K) - fepsi)* ksi/(S_0 * sigma * sqrt(T)) 
+  
+  return(f+h)
+}
+```
+
+```{r}
+print(delta(S_0, sigma, T, r, K, h, 50))
+```
+```{r}
+# Pętla wyznaczająca różne wartości parametru delta dla różnych wartości epsilona:
+Wariancja = c()
+Epsilon = c(11:71)
+for (i in 1:61){
+  Wariancja[i] = var(replicate(1000, delta(S_0, sigma, T, r, K, h, Epsilon[i])))
+}
+
+print(Wariancja)
+plot(Epsilon, Wariancja)
+
+```
+
 ![](images/Screenshot%202022-12-07%20at%2016.50.17.png)
 
 ```{r}
