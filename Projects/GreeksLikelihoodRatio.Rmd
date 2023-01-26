@@ -338,18 +338,18 @@ delta = function(S_0, sigma, T, r, K, h, epsilon) {
 ```
 
 ```{r}
-print(delta(S_0, sigma, T, r, K, h, 5))
+print(delta(S_0, sigma, T, r, K, h, 50))
 ```
 ```{r}
 # Pętla wyznaczająca różne wartości parametru delta dla różnych wartości epsilona:
-d = c()
-range = c(11:71)
+Wariancja = c()
+Epsilon = c(11:71)
 for (i in 1:61){
-  d[i] = var(replicate(1000, delta(S_0, sigma, T, r, K, h, range[i])))
+  Wariancja[i] = var(replicate(1000, delta(S_0, sigma, T, r, K, h, Epsilon[i])))
 }
 
-print(d)
-plot(range, d)
+print(Wariancja)
+plot(Epsilon, Wariancja)
 
 ```
 
