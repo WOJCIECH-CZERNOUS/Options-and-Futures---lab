@@ -46,7 +46,7 @@ return((expected_LogNormal_greater(m,s,k))-(k*(1-p_LogNormal(k,m,s))))
 }
 
 put_option_on_LogNormal = function(m,s,k) { # E(K-X)_+  (używamy 'put-call parity')
-return((k*(1-p_LogNormal_greater(k,m,s)))-(expected_LogNormal(m,s,k)))
+return((k*(1-p_LogNormal(k,m,s)))-(expected_LogNormal_greater(m,s,k)))
 }
 
 ```
@@ -160,12 +160,15 @@ Dla danej trajektorii $S$, odpowiadająca jej wypłata warunkowej opcji azjatyck
 
 ```{r}
 payoff_Asian_conditional_call = function(trajectory) {
-
+ barS = mean( trajectory[trajectory>b] )
+return ( max(0, barS-K) )
 }
 
 payoff_Asian_conditional_put = function(trajectory) {
-
+ barS = mean( trajectory[trajectory>b] )
+return ( max(0, K-barS) )
 }
+
 # aktualne parametry:
 sigma = .5; T = 5; h = T / n
 # aktualne funkcje i wartość oczekiwana:
@@ -182,8 +185,6 @@ print(price)
 (p. [2], Figure 1)
 
 ```{r}
-
-
 plot(t,S,type="l")
 lines(t,S_running_avg)
 lines(t,b_const)
@@ -197,8 +198,27 @@ Otrzymane wyniki, dla różnych wartości sigma oraz m,n, podajemy poniżej, wra
 
 ```{r}
 sigma_values = .1 * c(6,5,4,3,2)
+r=0.05
+T=5
+x=2.0
+K=2.0
+b=1.0
 for (sigma in sigma_values) {
-  
+  Y = payoff_Asian_put
+X = payoff_AsianGeomMean_put
+EX = expected_payoff_AsianGeomMean_put()
+# wycena:
+price = exp(-r*T) * estimator_with_control_variate(Y, X, EX)
+print( price)
+}
+
+for (sigma in sigma_values) {
+  Y = payoff_Asian_conditional_put
+X = payoff_AsianGeomMean_put
+EX = expected_payoff_AsianGeomMean_put()
+# wycena:
+price = exp(-r*T) * estimator_with_control_variate(Y, X, EX)
+print(price)
 }
 ```
 
